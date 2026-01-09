@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "477802602291",
+    "project_id": "studiq-7af4f",
+    "storage_bucket": "studiq-7af4f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:477802602291:android:371f82680d27fe2b2fe846",
+        "android_client_info": {
+          "package_name": "com.studyiq.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzS6BeBkkbMSdVcP4hCSqU5eV_f4HuYps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

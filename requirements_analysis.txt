@@ -1,0 +1,125 @@
+Gereksinim Analizi Raporu - StudyIQ
+
+1. Belge Özeti
+Bu belge StudyIQ mobil uygulaması için hazırlanan gereksinim analiz raporunun Türkçe özetidir. Rapor fonksiyonel ve fonksiyonel olmayan gereksinimleri, aktörleri, veri modelini, entegrasyonları, güvenlik gereksinimlerini, kabul kriterlerini, riskleri ve önerileri kapsar.
+
+2. Amaç ve Kapsam
+Amaç: Kullanıcıların ders notlarını düzenlemelerine, AI destekli özet/detay üretmelerine ve AI Teacher sohbeti yoluyla öğrenmelerini destekleyen mobil uygulamanın gereksinimlerini tanımlamaktır.
+Kapsam: iOS ve Android için React Native tabanlı uygulama; kimlik doğrulama, not yönetimi, AI entegrasyonu (OpenAI via Cloud Functions), abonelikler (IAP), yasal içerik ekranları ve temel kamera desteğini içerir.
+
+3. Aktörler
+- Son Kullanıcı (öğrenci)
+- Abone (premium kullanıcı)
+- Sistem (Firebase + Cloud Functions + OpenAI)
+- Uygulama Yöneticisi / Geliştirici (PlanTest, debug işlemleri)
+
+4. Fonksiyonel Gereksinimler (Özet)
+FR1 - Kullanıcı Kayıt ve Kimlik Doğrulama (Yüksek)
+- Kullanıcı e-posta/parola ile kayıt olabilmeli, giriş/çıkış yapabilmeli ve oturum durumunu uygulama başlatıldığında korumalıdır.
+Kabul Kriterleri: Kayıt, giriş, çıkış başarıyla çalışmalı; oturum kalıcılığı sağlanmalı.
+
+FR2 - Onboarding (Orta)
+- İlk çalıştırmada onboarding gösterilmeli ve tamamlandığında tekrar gösterilmemesi sağlanmalı.
+Kabul Kriterleri: AsyncStorage üzerindeki flag ile onboarding kontrolü.
+
+FR3 - Not Yönetimi (Yüksek)
+- Not oluşturma, okuma, güncelleme, silme; Firestore ile kalıcılık ve offline desteği olmalı.
+Kabul Kriterleri: CRUD işlemleri Firestore'da saklanmalı; offline durumlarda değişiklikler senkronize olmalı.
+
+FR4 - AI ile Not İşleme (Yüksek)
+- Kullanıcı notları OpenAI kullanılarak özet/detay formatına dönüştürülecek (Cloud Function proxy). İşlem sırasında yükleniyor göstergesi olmalı, hata durumları düzgün iletilmeli.
+Kabul Kriterleri: İşlem tetiklendiğinde gösterge, sonuç kaydedilip görüntülenmeli, hatalar kullanıcıya açıklayıcı biçimde sunulmalı.
+
+FR5 - AI Teacher Sohbeti (Yüksek)
+- İki yönlü sohbet; son 5 mesaj bağlam oluşturmak için kullanılacak; dil algılama (TR/EN); günlük kullanım limitleri uygulanacak.
+Kabul Kriterleri: Mesaj gönderilip cevap alınmalı; dil algılama çalışmalı; limitler aşıldığında kullanıcı bilgilendirilmeli.
+
+FR6 - Abonelik Yönetimi ve IAP (Yüksek)
+- Planlar listelenmeli, react-native-iap ile satın alma başlatılabilmeli, satın alma sonrası plan bilgisi güncellenmeli ve limitler uygulanmalı.
+Kabul Kriterleri: Satın alma akışı mağaza penceresini açmalı; satın alma sonrası plan Firestore/SubscriptionContext ile güncellenmeli.
+
+FR7 - Kullanım Takibi ve Limitler (Yüksek)
+- Günlük sayımlar (aiMessages, notesCreated, notesShared, pdfExports, studySessions) tutulmalı ve aksiyonlar bu limitlere göre engellenmeli veya uyarı verilmeli.
+Kabul Kriterleri: Usage artışı doğru zamanlarda gerçekleşmeli; UI kalan hakkı göstermeli.
+
+FR8 - PDF Dışa Aktarım (Orta)
+- Notlar PDF olarak dışa aktarılabilmeli; bu işlem pdfExports limitine sayılmalı.
+Kabul Kriterleri: PDF oluşturma başarılı; dosya kullanıcının cihazında erişilebilir.
+
+FR9 - Kamera Entegrasyonu (Düşük)
+- Notlara fotoğraf eklenebilmeli; izinler istenmeli.
+Kabul Kriterleri: Fotoğraf çekme ve notla ilişkilendirme çalışmalı.
+
+FR10 - Yasal Ekranlar (Düşük)
+- Gizlilik Politikası, Hizmet Şartları, Kullanım Koşulları, AI Uyarısı ekranları mevcut.
+Kabul Kriterleri: Yasal metinler erişilebilir ve okunabilir.
+
+FR11 - Hata Yönetimi ve Lokalize Mesajlar (Yüksek)
+- Ağ, yetki, kota ve içsel hatalar için kullanıcıya Türkçe/İngilizce açıklayıcı mesajlar gösterilmeli.
+Kabul Kriterleri: aiTeacherService hata haritalaması TR/EN olarak çalışmalı; Alert/Toast ile gösterim.
+
+5. Fonksiyonel Olmayan Gereksinimler (Özet)
+NFR1 - Performans & Timeout (Yüksek)
+- AI çağrıları 30 saniye içinde zaman aşımına uğramalı; uygulama yanıt vermeye devam etmeli.
+
+NFR2 - Güvenlik (Yüksek)
+- OpenAI anahtarı istemci içinde saklanmamalı; Cloud Functions environment/secret manager kullanılmalı. IAP doğrulaması sunucu tarafında yapılmalı.
+
+NFR3 - Offline Destek (Orta)
+- Firestore persistence açık; offline okuma/yazma senkronu sağlanmalı.
+
+NFR4 - Lokalizasyon (Orta)
+- AI yanıtları TR/EN desteklemeli; UI için ileride i18n altyapısı düşünülmeli.
+
+NFR5 - Erişilebilirlik & Tema (Düşük)
+- Dark mode desteklenmeli; kontrast ve okunabilirlik sağlanmalı.
+
+NFR6 - Sürdürülebilirlik (Orta)
+- Kodda sorumluluk ayrımı (servisler/bağlamlar/ekranlar) korunmalı; test yazılabilirlik hedeflenmeli.
+
+6. Veri Modeli (Kısa Özet)
+- User: id, name, email, plan, usage (günlük sayaçlar), learningProfile
+- Note: id, userId, title, content, attachments, createdAt, updatedAt, tags
+- Subscription: userId, planType, isActive, expiresAt, receipt
+- Conversation / Message: id, userId, role, text, timestamp, language
+
+7. Entegrasyonlar
+- Firebase: Auth, Firestore, Functions
+- OpenAI: Cloud Functions (openaiProxy) üzerinden çağrı
+- Mağaza IAP: react-native-iap ile App Store / Play Store
+- Diğer: @react-native-firebase paketleri, react-native-vector-icons
+
+8. Güvenlik ve Gizlilik
+- OpenAI anahtarı istemciye konulmamalı; Functions ortam değişkenlerinde tutulmalı.
+- Firestore güvenlik kuralları (rules) ile sadece yetkili kullanıcı erişimi sağlanmalı.
+- Kişisel veriler (email, not içerikleri) için gizlilik politikasına uygun işleme ve saklama yöntemleri belgelendirilmeli.
+
+9. Kabul Kriterleri (Seçmeler)
+- Kayıt/giriş akışı test edilir; oturum korunur.
+- Not CRUD operasyonları Firestore'da görünür ve offline senkronu test edilir.
+- AI Note Processing testinde sonuç dönmeli ve hata mesajları düzgün çalışmalı.
+- AI Teacher için dil algılama, bağlam ve limitler doğrulanmalı.
+- Satın alma işlemi tetiklenmeli; satın alma sonrası plan bilgisi güncellenmeli.
+
+10. Riskler ve Öneriler
+RISK - OpenAI Key Exposure: README'de API anahtarı yerleştirme önerisi var; bu üretime uygun değil.
+- Öneri: OpenAI anahtarını Cloud Functions ortam değişkenlerine taşıyın ve istemci tarafında anahtar kullanmayın.
+
+RISK - IAP Doğrulama Eksikliği: Sunucu doğrulaması yoksa sahte satın almalar riski var.
+- Öneri: Satın alma makbuzunu (receipt) sunucu tarafında doğrulayın (Functions) ve Firestore'da doğrulanmış durum saklayın.
+
+RISK - Firestore Kurallarının Yokluğu: Yetkisiz erişim riski.
+- Öneri: Firestore kurallarını hazırlayıp emülatör ile test edin.
+
+11. Uygulanabilir İyileştirmeler (Önceliklendirilmiş)
+1) Kritik: OpenAI anahtar yönetimi ve Cloud Function güvenliği.
+2) Kritik: IAP sunucu doğrulaması ve abonelik kabul akışı.
+3) Yüksek: Test senaryoları ve otomasyon (unit/E2E).
+4) Orta: App-wide i18n yapılandırması (react-intl veya i18next).
+5) Orta: Monitoring (Crashlytics/Sentry) ve Cloud Functions logging analizleri.
+
+12. Ekler
+- Mevcut README ve src kodunda referans verilen servisler: src/services, src/contexts, src/firebase/config.ts
+- Cloud Function adı: openaiProxy (client tarafından çağrılıyor)
+
+Rapor hazırlandı: StudyIQ - Gereksinim Analizi (Türkçe).
